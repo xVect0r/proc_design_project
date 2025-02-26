@@ -1,6 +1,5 @@
 module ID_EX_register(
     input clk,
-    input controlSignal,
     //input to the register that require an putput
     input regDestsFlagInput, 
     input regWriteFlagInput, 
@@ -10,12 +9,12 @@ module ID_EX_register(
     input MemToRegInput, 
     input BranchFlagInput, 
     input JumpFlagInput,
-    input [4:0] regDestAddressInput,
     input [3:0] ALUControlInput,
     input [31:0] IRInput,
     input [31:0] PCInput,
     input [31:0] ARegisterInput,
     input [31:0] BRegisterInput,
+    input [4:0] regDestAddressInput,
     input [31:0] BranchInput,
     input [31:0] JumpInput,
     //corresponding outputs
@@ -27,14 +26,15 @@ module ID_EX_register(
     output reg MemToRegOutput,
     output reg BranchFlagOutput,
     output reg JumpFlagOutput,
-    output reg [4:0] regDestAddressOutput,
     output reg [3:0] ALUControlOutput,
     output reg [31:0] IROutput,
     output reg [31:0] PCOutput,
     output reg [31:0] ARegisterOutput,
     output reg [31:0] BRegisterOutput,
+    output reg [4:0] regDestAddressOutput,
     output reg [31:0] BranchOutput,
-    output reg [31:0] JumpOutput
+    output reg [31:0] JumpOutput,
+    input controlSignal
 );
 
 initial begin

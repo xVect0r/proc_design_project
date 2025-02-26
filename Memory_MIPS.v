@@ -5,6 +5,7 @@ module Memory(
     input [31:0] WriteDataInput,
     output reg [31:0] ReadDataOutput
 );
+//module DMemBank(input memread, input memwrite, input [31:0] address, input [31:0] writedata, output reg [31:0] readdata);
 
 //creating the memory bank
 reg [31:0] memoryArray [127:0];

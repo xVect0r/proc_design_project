@@ -1,10 +1,10 @@
 module IF_ID_register(
     input clk,
-    input IFIDControl,
     input [31:0] nextPCInput,
     input [31:0] instrOutInput,
     output reg [31:0] nextPCOutput,
-    output reg [31:0] instrOutOutput
+    output reg [31:0] instrOutOutput,
+    input IFIDControl
 );
 
 always@(posedge clk) begin

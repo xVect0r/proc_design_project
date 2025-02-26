@@ -1,6 +1,5 @@
 module MEM_WB_register(
     input clk,
-    input controlSignal,
 
     input regDestsFlagInput,
     input regWriteFlagInput,
@@ -27,9 +26,15 @@ module MEM_WB_register(
     output reg [31:0] IRInput,
     output reg [31:0] BOutput,
     output reg [31:0] ResultOutput,
-    output reg [4:0] regDestAddressOutput
+    output reg [4:0] regDestAddressOutput,
+    input controlSignal
 
 );
+
+module MEMWB(clock,iRegDests,iRegWrite,iALUSrc,iMemRead,iMemWrite,iMemToReg,iBranchs,iJumps,iALUCtrl,
+iIR,iB,iResult,iRegDest,
+oRegDests,oRegWrite,oALUSrc,oMemRead,oMemWrite,oMemToReg,oBranchs,oJumps,oALUCtrl,
+oIR,oB,oResult,oRegDest,enable);
 
 initial begin
     IROutput<=32'b0;

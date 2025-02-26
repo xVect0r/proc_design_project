@@ -1,6 +1,5 @@
 module EX_MEM_register(
     input clk,
-    input controlSignal,
 
     input regDestsFlagInput,
     input regWriteFlagInput,
@@ -15,9 +14,9 @@ module EX_MEM_register(
     input [31:0] PCInput,
     input [31:0] BInput,
     input [31:0] ResultInput,
-    input [31:0] JumpAddressInput,
-    input [31:0] BranchAddressInput,
     input [4:0] regDestAddressInput,
+    input [31:0] BranchAddressInput,
+    input [31:0] JumpAddressInput,
     input ZeroFlagInput,
     
     output reg regDestsFlagOutput,
@@ -33,11 +32,17 @@ module EX_MEM_register(
     output reg [31:0] PCOutput,
     output reg [31:0] BOutput,
     output reg [31:0] ResultOutput,
-    output reg [31:0] JumpAddressOutput,
-    output reg [31:0] BranchAddressOutput,
     output reg [4:0] regDestAddressOutput,
-    output reg  ZeroFlagOutput
+    output reg [31:0] BranchAddressOutput,
+    output reg [31:0] JumpAddressOutput,
+    output reg  ZeroFlagOutput,
+    input controlSignal
 );
+module EXMEM(clock,iRegDests,iRegWrite,iALUSrc,iMemRead,iMemWrite,iMemToReg,iBranchs,iJumps,iALUCtrl,
+iIR,iPC,iB,iResult,iRegDest,iBranch,iJump,iZero,
+oRegDests,oRegWrite,oALUSrc,oMemRead,oMemWrite,oMemToReg,oBranchs,oJumps,oALUCtrl,
+oIR,oPC,oB,oResult,oRegDest,oBranch,oJump,oZero,enable);
+
 
 initial begin
     PCOutput<=32'b0;
