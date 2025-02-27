@@ -148,7 +148,7 @@ always @(posedge clk)begin
     else begin
         We3=1'b0;
     end
-    stall=~((((Rs==Ws1)&We1) + ((Rs==Ws2)&We2) + ((Rs==Ws3)&We3))&Res + (((Rt==Ws1)&We1) + ((Rt==Ws2)&We2) + ((Rt==Ws3)&We3))&Ret);
+    stallFlag=~((((Rs==Ws1)&We1) + ((Rs==Ws2)&We2) + ((Rs==Ws3)&We3))&Res + (((Rt==Ws1)&We1) + ((Rt==Ws2)&We2) + ((Rt==Ws3)&We3))&Ret);
 
 end
 endmodule

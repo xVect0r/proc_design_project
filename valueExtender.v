@@ -1,6 +1,6 @@
 module valueExtender(
     input [15:0] inpData,
-    output [31:0] outData
+    output reg [31:0] outData
 );
 
 always @(inpData) begin

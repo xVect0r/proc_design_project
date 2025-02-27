@@ -44,18 +44,18 @@ end
 
 always @(posedge clk) begin
     if(controlSignal == 1'b1) begin
-    regDestsOutput <= regDestsInput;
-    regWriteOutput<=regWriteInput;
+    regDestsFlagOutput <= regDestsFlagInput;
+    regWriteFlagOutput<=regWriteFlagInput;
     ALUSrcOutput<=ALUSrcInput;
     MemReadFlagOutput<=MemReadFlagInput;
     MemWriteFlagOutput<=MemWriteFlagInput;
-    MemToRegInput<=MemToRegInput;
+    MemToRegOutput<=MemToRegInput;
     BranchFlagOutput<=BranchFlagInput;
     JumpFlagOutput<=JumpFlagInput;
     regDestAddressOutput<=regDestAddressInput;
     ALUControlOutput<=ALUControlInput;
     IROutput<=IRInput;
-    PCOutput<PCInput;
+    PCOutput<=PCInput;
     ARegisterOutput<=ARegisterInput;
     BRegisterOutput<=BRegisterInput;
     BranchOutput<=BranchInput;

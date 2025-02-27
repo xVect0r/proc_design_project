@@ -38,11 +38,6 @@ module EX_MEM_register(
     output reg  ZeroFlagOutput,
     input controlSignal
 );
-module EXMEM(clock,iRegDests,iRegWrite,iALUSrc,iMemRead,iMemWrite,iMemToReg,iBranchs,iJumps,iALUCtrl,
-iIR,iPC,iB,iResult,iRegDest,iBranch,iJump,iZero,
-oRegDests,oRegWrite,oALUSrc,oMemRead,oMemWrite,oMemToReg,oBranchs,oJumps,oALUCtrl,
-oIR,oPC,oB,oResult,oRegDest,oBranch,oJump,oZero,enable);
-
 
 initial begin
     PCOutput<=32'b0;
@@ -51,23 +46,23 @@ end
 
 always @(posedge clk) begin
     if (controlSignal==1'b1) begin
-        regDestsFlagInput<=regDestsFlagOutput;
-        regWriteFlagInput<=regWriteFlagOutput;
-        ALUSrcInput<=ALUSrcOutput;
-        memReadFlagInput<=memReadFlagOutput;
-        memWriteFlagInput<=memWriteFlagOutput;
-        MemToRegInput<=MemToRegOutput;
-        BranchsFlagInput<=BranchsFlagOutput;
-        JumpsFlagInput<=JumpsFlagOutput;
-        ALUControlInput<=ALUControlOutput;
-        IRInput<=IROutput;
-        PCInput<=PCOutput;
-        BInput<=BInput;
-        ResultInput<=ResultOutput;
-        JumpAddressInput<JumpAddressOutput;
-        BranchAddressInput<=BranchAddressOutput;
-        regDestAddressInput<=regDestAddressOutput;
-        ZeroFlagInput<=ZeroFlagOutput;
+        regDestsFlagOutput<=regDestsFlagInput;
+        regWriteFlagOutput<=regWriteFlagInput;
+        ALUSrcOutput<=ALUSrcInput;
+        memReadFlagOutput<=memReadFlagInput;
+        memWriteFlagOutput<=memWriteFlagInput;
+        MemToRegOutput<=MemToRegInput;
+        BranchsFlagOutput<=BranchsFlagInput;
+        JumpsFlagOutput<=JumpsFlagInput;
+        ALUControlOutput<=ALUControlInput;
+        IROutput<=IRInput;
+        PCOutput<=PCInput;
+        BOutput<=BInput;
+        ResultOutput<=ResultInput;
+        JumpAddressOutput<=JumpAddressInput;
+        BranchAddressOutput<=BranchAddressInput;
+        regDestAddressOutput<=regDestAddressInput;
+        ZeroFlagOutput<=ZeroFlagInput;
     end
     
 end

@@ -1,18 +1,20 @@
 module progCounterRegWrite(
-    input [31:0] instAddress_req;
+    input [31:0] instAddress_in,
     input controlPC,
-    output reg [31:0] instAddress_read;
+    output reg [31:0] instAddress_out
 );
 
-//start_at_first_inst
+// Start at first instruction
 initial begin
-    $display("Program starts execution")
-   instAddress_read=32'b0; 
+    $display("Program starts execution");
+    instAddress_out = 32'b0;
 end
-//move_to_given_instruction
-always @(instAddress_req) begin
-    $display("Program progresses at signal from Control")
-    if(cntrolPC==1'b1) out=in;
+
+// Move to given instruction
+always @(instAddress_in or controlPC) begin
+    $display("Program progresses at signal from Control");
+    if (controlPC == 1'b1) 
+        instAddress_out = instAddress_in;
 end
 
 endmodule

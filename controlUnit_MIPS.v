@@ -155,3 +155,5 @@ always @(InstOpCode, ALUOperation, posedge clk) begin
     end
 
 end
+
+endmodule

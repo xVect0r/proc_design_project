@@ -10,7 +10,7 @@ module IF_ID_register(
 always@(posedge clk) begin
     if(IFIDControl==1'b1) begin
         $display("IF->ID stage execution is taking place");
-        nextPCInput <= nextPCOutput;
+        nextPCOutput <= nextPCInput;
         instrOutOutput <= instrOutInput;
     end
 end

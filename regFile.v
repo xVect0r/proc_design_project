@@ -17,7 +17,7 @@ integer loop_var;
 initial begin
     $display("Assigning 0 to all registers in register file");
     for (loop_var =0 ;loop_var<31 ;loop_var=loop_var+1 ) begin
-        regFile[loop_var] = 0;
+        regFile_array[loop_var] = 0;
     end
 end
 
@@ -26,11 +26,12 @@ always @(posedge clk) begin
     $display("Writing back to the register the value %b at %b", writeRegData, writeRegAddress);
     if(regWriteControl == 1'b1) regFile_array[writeRegAddress] <= writeRegData;
     regFile_array[0] = 0;
+    //hardwiring_the_values_in_register1_and2_for_faster_processing
+    $display("Read_data for reg 1 and reg 2 available");
+    readData1 = regFile_array[readRegAddress1];
+    readData2 = regFile_array[readRegAddress2];
 end
 
-//hardwiring_the_values_in_register1_and2_for_faster_processing
-$display("Read_data for reg 1 and reg 2 available")
-assign readData1 = regFile_array[readRegAddress1];
-assign readData2 = regFile_array[readRegAddress2];
+
 
 endmodule

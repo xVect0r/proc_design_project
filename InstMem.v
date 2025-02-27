@@ -19,7 +19,7 @@ end
 always @(instRead, instAddress ) begin
     if(instRead) begin
         word_indx = instAddress>>2;
-        instRead=instArray[word_indx];
+        InstRead=instArray[word_indx];
     end
 end
 
