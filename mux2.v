@@ -7,12 +7,12 @@ module mux2(
 
 always @(control) begin
     if (control) begin 
-        out_reg = in2;
-        $display("Choosing line 2");
+        out_reg <= in2;
+        // $display("Choosing line 2");
     end
     else begin 
-        out_reg = in1;    
-        $display("Chooosing line 1");
+        out_reg <= in1;    
+        // $display("Chooosing line 1");
     end
 end
 

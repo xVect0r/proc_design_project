@@ -4,22 +4,26 @@ module InstMem(
     output reg [31:0] InstRead
 );
 
-//memory_arry_instantiation
+// Memory array instantiation
 reg [31:0] instArray [255:0];
-reg [31:0] word_indx;
 
-//loop_to_initialize_mem_to_0
+// Loop to initialize memory to 0
 integer loop_var;
 initial begin
-    for (loop_var=0;loop_var<255;loop_var=loop_var+1) begin
-        instArray[loop_var] = 32'b0;
+    $display("[InstMem] Initializing instruction memory to zero");
+    for (loop_var = 0; loop_var < 256; loop_var = loop_var + 1) begin
+        instArray[loop_var] = 32'b0; // Use blocking assignment for initialization
     end
 end
-//when instruction is recieved read the instruction file and fetch the 
-always @(instRead, instAddress ) begin
-    if(instRead) begin
-        word_indx = instAddress>>2;
-        InstRead=instArray[word_indx];
+
+// When instruction is received, read the instruction memory
+always @(instRead or instAddress) begin
+    if (instRead) begin
+        $display("[InstMem] Reading instruction at address: 0x%h", instAddress);
+        InstRead <= instArray[instAddress[7:0]]; // Use lower 8 bits for indexing
+    end
+    else begin
+        InstRead <= 32'b0; // Default output when `instRead` is not asserted
     end
 end
 

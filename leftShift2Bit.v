@@ -4,7 +4,7 @@ module leftShift2Bit(
 );
 
 always @(in_data) begin
-    out_data = in_data<<2;
+    out_data <= in_data<<2;
 end
 
 endmodule
@@ -15,7 +15,7 @@ module jumpShift(
 );
 
 always@(in_data) begin
-    out_data = {in_data,2'b0};
+    out_data <= {in_data,2'b0};
 end
 
 endmodule

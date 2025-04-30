@@ -1,20 +1,23 @@
 module progCounterRegWrite(
+    input clk,
+    input reset, // Active-high reset
     input [31:0] instAddress_in,
     input controlPC,
     output reg [31:0] instAddress_out
 );
 
-// Start at first instruction
-initial begin
-    $display("Program starts execution");
-    instAddress_out = 32'b0;
-end
-
-// Move to given instruction
-always @(instAddress_in or controlPC) begin
-    $display("Program progresses at signal from Control");
-    if (controlPC == 1'b1) 
-        instAddress_out = instAddress_in;
+// Reset and initialization
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
+        // Reset the program counter to 0
+        instAddress_out <= 32'b0;
+        $display("[ProgramCounter] Reset: Program counter set to 0");
+    end
+    else if (controlPC) begin
+        // Update the program counter with the input address
+        instAddress_out <= instAddress_in;
+        $display("[ProgramCounter] Update: Program counter updated to 0x%h", instAddress_in);
+    end
 end
 
 endmodule

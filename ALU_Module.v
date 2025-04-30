@@ -8,43 +8,39 @@ module ALU_Module(
     output reg greaterThanFlag
 );
 
-always @(ALUOpCode, data_in1, data_in2) begin
-    case (ALUOpCode)
-    // we can add more opcodes here to create more functionality in the ALU.
-    4'b0000: resultOut = data_in1+data_in2;
-    4'b0001: resultOut = data_in1-data_in2;
-    4'b0010: resultOut = data_in1&data_in2;
-    4'b0011: resultOut = data_in1|data_in2;
+always @* begin
+    // Reset flags
+    zeroFlag = 1'b0;
+    greaterThanFlag = 1'b0;
+    lessThanFlag = 1'b0;
 
-    default: resultOut = data_in1+data_in2;
+    // ALU operation
+    case (ALUOpCode)
+        4'b0000: resultOut = data_in1 + data_in2; // ADD
+        4'b0001: resultOut = data_in1 - data_in2; // SUB
+        4'b0010: resultOut = data_in1 & data_in2; // AND
+        4'b0011: resultOut = data_in1 | data_in2; // OR
+        default: resultOut = 32'b0; // Undefined operation
     endcase
 
-    if(data_in1>data_in2) begin
+    // Comparison logic
+    if (data_in1 > data_in2) begin
         $display("Greater than true");
         greaterThanFlag = 1'b1;
-        lessThanFlag = 1'b0;
-
     end
-
-    else if (data_in1< data_in2) begin
+    else if (data_in1 < data_in2) begin
         $display("Lesser than true");
-        greaterThanFlag = 1'b0;
-        lessThanFlag =1'b1;
+        lessThanFlag = 1'b1;
     end
-
     else begin
         $display("Both are equal");
-        greaterThanFlag = 1'b0;
-        lessThanFlag = 1'b0;
     end
 
-    if (resultOut == 32'd0) begin 
-        zeroFlag=1'b1;
-        $display("Jump initiated");
+    // Zero flag logic
+    if (resultOut == 32'd0) begin
+        zeroFlag = 1'b1;
+        $display("Zero flag set");
     end
-    else zeroFlag = 1'b0;
-
-
 end
 
 endmodule

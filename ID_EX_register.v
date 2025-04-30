@@ -1,6 +1,7 @@
 module ID_EX_register(
     input clk,
-    //input to the register that require an putput
+    input reset, // Active-high reset
+    // Inputs
     input regDestsFlagInput, 
     input regWriteFlagInput, 
     input ALUSrcInput, 
@@ -17,7 +18,7 @@ module ID_EX_register(
     input [4:0] regDestAddressInput,
     input [31:0] BranchInput,
     input [31:0] JumpInput,
-    //corresponding outputs
+    // Outputs
     output reg regDestsFlagOutput,
     output reg regWriteFlagOutput,
     output reg ALUSrcOutput,
@@ -37,30 +38,44 @@ module ID_EX_register(
     input controlSignal
 );
 
-initial begin
-    PCOutput=32'b0;
-    IROutput=32'b0;
-end
-
-always @(posedge clk) begin
-    if(controlSignal == 1'b1) begin
-    regDestsFlagOutput <= regDestsFlagInput;
-    regWriteFlagOutput<=regWriteFlagInput;
-    ALUSrcOutput<=ALUSrcInput;
-    MemReadFlagOutput<=MemReadFlagInput;
-    MemWriteFlagOutput<=MemWriteFlagInput;
-    MemToRegOutput<=MemToRegInput;
-    BranchFlagOutput<=BranchFlagInput;
-    JumpFlagOutput<=JumpFlagInput;
-    regDestAddressOutput<=regDestAddressInput;
-    ALUControlOutput<=ALUControlInput;
-    IROutput<=IRInput;
-    PCOutput<=PCInput;
-    ARegisterOutput<=ARegisterInput;
-    BRegisterOutput<=BRegisterInput;
-    BranchOutput<=BranchInput;
-    JumpOutput<=JumpInput;
-
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
+        // Reset all outputs to 0
+        regDestsFlagOutput <= 1'b0;
+        regWriteFlagOutput <= 1'b0;
+        ALUSrcOutput <= 1'b0;
+        MemReadFlagOutput <= 1'b0;
+        MemWriteFlagOutput <= 1'b0;
+        MemToRegOutput <= 1'b0;
+        BranchFlagOutput <= 1'b0;
+        JumpFlagOutput <= 1'b0;
+        regDestAddressOutput <= 5'b0;
+        ALUControlOutput <= 4'b0;
+        IROutput <= 32'b0;
+        PCOutput <= 32'b0;
+        ARegisterOutput <= 32'b0;
+        BRegisterOutput <= 32'b0;
+        BranchOutput <= 32'b0;
+        JumpOutput <= 32'b0;
+    end
+    else if (controlSignal) begin
+        // Update outputs with inputs
+        regDestsFlagOutput <= regDestsFlagInput;
+        regWriteFlagOutput <= regWriteFlagInput;
+        ALUSrcOutput <= ALUSrcInput;
+        MemReadFlagOutput <= MemReadFlagInput;
+        MemWriteFlagOutput <= MemWriteFlagInput;
+        MemToRegOutput <= MemToRegInput;
+        BranchFlagOutput <= BranchFlagInput;
+        JumpFlagOutput <= JumpFlagInput;
+        regDestAddressOutput <= regDestAddressInput;
+        ALUControlOutput <= ALUControlInput;
+        IROutput <= IRInput;
+        PCOutput <= PCInput;
+        ARegisterOutput <= ARegisterInput;
+        BRegisterOutput <= BRegisterInput;
+        BranchOutput <= BranchInput;
+        JumpOutput <= JumpInput;
     end
 end
 

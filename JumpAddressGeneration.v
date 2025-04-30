@@ -5,7 +5,7 @@ module JumpAddressGeneration(
 );
 
 always @(addr_inp1, addr_inp2) begin
-    jumpAddress= {addr_inp1,addr_inp2};
+    jumpAddress<= {addr_inp1,addr_inp2};
 end
 
 endmodule

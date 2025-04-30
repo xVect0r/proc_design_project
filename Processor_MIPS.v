@@ -17,142 +17,259 @@
 `include "stallModule.v"
 `include "valueExtender.v"
 
-module Mypip(
-    input clk 
+module Processor_MIPS(
+    input clk,
+    input reset
 );
 
-wire [31:0] instrWireID,nextPCID;
-wire [31:0] instrWireEX,nextPCEX,readData1EX,readData2EX,NPC1EX,outSignEXTEX;
+////////////////////////////////////////////////////////////
+// Wires for pipeline stages
+wire [31:0] instrWireID, nextPCID;
+wire [31:0] instrWireEX, nextPCEX, readData1EX, readData2EX, NPC1EX, outSignEXTEX;
 wire [4:0] writeRegWireEX;
-wire [31:0] instrWireMEM,readData2MEM,ALUResultMEM,nextPCBranchMEM,NPC1MEM,nextPCMEM;
+wire [31:0] instrWireMEM, readData2MEM, ALUResultMEM, nextPCBranchMEM, NPC1MEM, nextPCMEM;
 wire [4:0] writeRegWireMEM;
 wire ZeroOutMEM;
-wire [31:0] instrWireWB,ALUResultWB,outputDataWB;
+wire [31:0] instrWireWB, ALUResultWB, outputDataWB;
 wire [4:0] writeRegWireWB;
 
-wire RegDestEX,RegWriteEX,ALUSrcEX,MemReadEX,MemWriteEX,MemToRegEX,BranchEX,JumpEX;
-wire [3:0]ALUCtrlEX;
-wire RegDestMEM,RegWriteMEM,ALUSrcMEM,MemReadMEM,MemWriteMEM,MemToRegMEM,BranchMEM,JumpMEM;
-wire [3:0]ALUCtrlMEM;
-wire RegDestWB,RegWriteWB,ALUSrcWB,MemReadWB,MemWriteWB,MemToRegWB,BranchWB,JumpWB;
-wire [3:0]ALUCtrlWB;
+////////////////////////////////////////////////////////////
+// Control signals for pipeline stages
+wire RegDestEX, RegWriteEX, ALUSrcEX, MemReadEX, MemWriteEX, MemToRegEX, BranchEX, JumpEX;
+wire [3:0] ALUCtrlEX;
+wire RegDestMEM, RegWriteMEM, ALUSrcMEM, MemReadMEM, MemWriteMEM, MemToRegMEM, BranchMEM, JumpMEM;
+wire [3:0] ALUCtrlMEM;
+wire RegDestWB, RegWriteWB, ALUSrcWB, MemReadWB, MemWriteWB, MemToRegWB, BranchWB, JumpWB;
+wire [3:0] ALUCtrlWB;
 
+////////////////////////////////////////////////////////////
+// Hazard and stall control signals
 wire dataStall;
 wire controlStall;
 
-wire [31:0]PC;
-wire [31:0]nextPC;
-wire [31:0]instrWire;
-wire [2:0]ALUOp;
-wire RegDest,RegWrite,ALUSrc,MemRead,MemWrite,MemToReg,Branch,Jump;
-wire [31:0]instrWireIDhazard,instrWireHazard;
-InstMem u0(1'b1, PC,instrWire);/*IF*/
+////////////////////////////////////////////////////////////
+// Instruction Fetch (IF) stage
+wire [31:0] PC;
+wire [31:0] nextPC;
+wire [31:0] instrWire;
+wire [31:0] instrWireHazard;
+wire [31:0] instrWireIDhazard; ;
 
-addr32bit u4(32'b100,PC,nextPC);/*IF*/
+InstMem u0(
+    .instRead(1'b1),
+    .instAddress(PC),
+    .InstRead(instrWire)
+);
 
-stallUnit u90(clk, instrWireID[25:21], instrWireID[20:16],instrWireID[31:26],instrWireID,instrWireEX,instrWireMEM,writeRegWireWB,RegWriteWB,instrWireWB,dataStall);
-stallControlUnit u92(clk,instrWireID[31:26],instrWireEX[31:26],instrWireMEM[31:26],controlStall);
-nopSet u91(clk,dataStall,controlStall,instrWire,instrWireID,instrWireHazard,instrWireIDhazard);
-
-controlUnit u1(clk,instrWireIDhazard[31:26],instrWireIDhazard[5:0],instrWireIDhazard,ALUOp,RegDest,RegWrite,ALUSrc,MemRead,MemWrite,MemToReg,Branch,Jump);/*ID*/
-
-wire [4:0]writeRegWire;
-
-mux2 u10A(RegDest,instrWireID[16],instrWireID[11],writeRegWire[0]);
-mux2 u10B(RegDest,instrWireID[17],instrWireID[12],writeRegWire[1]);
-mux2 u10C(RegDest,instrWireID[18],instrWireID[13],writeRegWire[2]);
-mux2 u10D(RegDest,instrWireID[19],instrWireID[14],writeRegWire[3]);
-mux2 u10E(RegDest,instrWireID[20],instrWireID[15],writeRegWire[4]);
-
-wire [31:0]readData1,readData2;
-wire [31:0]WBData;
-regFile u11(clk, RegWriteWB, instrWireID[25:21], instrWireID[20:16],writeRegWireWB, WBData, readData1, readData2);
-
-wire [31:0]ALUSrc1;
-wire [31:0]outSignEXT;
-valueExtender u2(instrWireID[15:0],outSignEXT);/*ID*/
-
-genvar loop_var_u12;
-generate
-    for (loop_var_u12 = 0;loop_var_u12<32 ;loop_var_u12=loop_var_u12+1 ) begin
-        mux2 u12(ALUSrcEX,readData2EX[loop_var_u12],outSignEXTEX[loop_var_u12],ALUSrc1[loop_var_u12]);/*EX*/
-    end
-endgenerate
-
-
-
-wire [3:0]ALUCtrl;
-ALUControl u13(instrWireID[5:0],ALUOp,ALUCtrl);/*ID*/
-
-wire [31:0]ALUResult;
-wire ZeroOut;
-wire greaterThan;
-wire lesserThan;
-ALU_Module u14(readData1EX,ALUSrc1,ALUCtrlEX,ALUResult,ZeroOut, greaterThan, lesserThan);/*EX*/
-
-wire [31:0]outputData;
-Memory u15(MemReadMEM, MemWriteMEM,ALUResultMEM , readData2MEM, outputData);/*MEM*/
-
-genvar loop_var_u16;
-generate
-    for (loop_var_u16 = 0;loop_var_u16<32 ;loop_var_u16=loop_var_u16+1 ) begin
-        mux2 u16(MemToRegWB,ALUResultWB[loop_var_u16],outputDataWB[loop_var_u16],WBData[loop_var_u16]);/*WB*/     
-    end
-endgenerate
+addr32bit u4(
+    .inp_1(PC),
+    .inp_2(32'b100),
+    .out_addr(nextPC)
+);
 
 ////////////////////////////////////////////////////////////
-wire [31:0]outputSLL;
-leftShift2Bit u3(outSignEXTEX,outputSLL);/*EX*/
+// Stall and hazard control
+stallUnit u90(
+    .clk(clk),
+    .reset(reset),
+    .Rs(instrWireID[25:21]),
+    .Rt(instrWireID[20:16]),
+    .InstOpCode(instrWireID[31:26]),
+    .IR_ID(instrWireID),
+    .IR_EX(instrWireEX),
+    .IR_MEM(instrWireMEM),
+    .regWB(writeRegWireWB),
+    .WWB(RegWriteWB),
+    .IR_WB(instrWireWB),
+    .stallFlag(dataStall)
+);
 
-wire [31:0]nextPCBranch;
-addr32bit u5(nextPCEX,outputSLL,nextPCBranch);/*EX*/
+stallControlUnit u92(
+    .clk(clk),
+    .reset(reset),
+    .Operand1(instrWireID[31:26]),
+    .Operand2(instrWireEX[31:26]),
+    .Operand3(instrWireMEM[31:26]),
+    .stallFlag(controlStall)
+);
 
-wire branchEnable;
-assign branchEnable= ZeroOutMEM & BranchMEM;/*MEM*/
+nopSet u91(
+    .clk(clk),
+    .reset(reset),
+    .S1(dataStall),
+    .S2(controlStall),
+    .OldF(instrWire),
+    .OldD(instrWireID),
+    .NewF(instrWireHazard),
+    .NewD(instrWireIDhazard)
+);
 
-wire [31:0]NPC0;
-genvar loop_var_u6;
-generate
-    for (loop_var_u6 = 0;loop_var_u6<32 ;loop_var_u6=loop_var_u6+1 ) begin
-        mux2 u6(branchEnable,nextPCMEM[loop_var_u6],nextPCBranchMEM[loop_var_u6],NPC0[loop_var_u6]);/*MEM*/
-    end
-endgenerate
+////////////////////////////////////////////////////////////
+// Instruction Decode (ID) stage
+controlUnit u1(
+    .clk(clk),
+    .reset(reset),
+    .InstOpCode(instrWireIDhazard[31:26]),
+    .ALUOperation(instrWireIDhazard[5:0]),
+    .IR(instrWireIDhazard),
+    .ALUOpCode(ALUCtrlEX),
+    .regDestFlag(RegDest),
+    .regWriteFlag(RegWrite),
+    .ALUSrcFlag(ALUSrc),
+    .MemReadFlag(MemRead),
+    .MemWriteFlag(MemWrite),
+    .MemToRegFlag(MemToReg),
+    .BranchFlag(Branch),
+    .JumpFlag(Jump)
+);
 
+wire [4:0] writeRegWire;
 
-wire [27:0]nextPCJump;
-jumpShift u7(instrWireID[25:0],nextPCJump);/*ID*/
+mux2 u10A(RegDest, instrWireID[16], instrWireID[11], writeRegWire[0]);
+mux2 u10B(RegDest, instrWireID[17], instrWireID[12], writeRegWire[1]);
+mux2 u10C(RegDest, instrWireID[18], instrWireID[13], writeRegWire[2]);
+mux2 u10D(RegDest, instrWireID[19], instrWireID[14], writeRegWire[3]);
+mux2 u10E(RegDest, instrWireID[20], instrWireID[15], writeRegWire[4]);
 
-wire [31:0]NPC1;
-JumpAddressGeneration u20(nextPC[31:28],nextPCJump,NPC1);/*ID*/
+wire [31:0] readData1, readData2;
+wire [31:0] WBData;
 
-wire [31:0]NPCValue;
+regFile u11(
+    .clk(clk),
+    .regWriteControl(RegWriteWB),
+    .readRegAddress1(instrWireID[25:21]),
+    .readRegAddress2(instrWireID[20:16]),
+    .writeRegAddress(writeRegWireWB),
+    .writeRegData(WBData),
+    .readData1(readData1),
+    .readData2(readData2)
+);
 
-genvar loop_var_u8;
-generate
-    for (loop_var_u8 = 0;loop_var_u8<32 ;loop_var_u8=loop_var_u8+1 ) begin
-        mux2 u8(JumpMEM,NPC0[loop_var_u8],NPC1MEM[loop_var_u8],NPCValue[loop_var_u8]);/*MEM*/
-    end
-endgenerate
+////////////////////////////////////////////////////////////
+// Program Counter Update
+progCounterRegWrite u9(
+    .clk(clk),
+    .reset(reset),
+    .instAddress_in(nextPC),
+    .instAddress_out(PC)
+);
 
+////////////////////////////////////////////////////////////
+// Pipeline Registers
+IF_ID_register p1(
+    .clk(clk),
+    .reset(reset),
+    .instrOutInput(instrWireHazard),
+    .nextPCInput(nextPC),
+    .instrOutOutput(instrWireID),
+    .nextPCOutput(nextPCID),
+    .IFIDControl(dataStall)
+);
 
+ID_EX_register p2(
+    .clk(clk),
+    .reset(reset),
+    .regDestsFlagInput(RegDest),
+    .regWriteFlagInput(RegWrite),
+    .ALUSrcInput(ALUSrc),
+    .MemReadFlagInput(MemRead),
+    .MemWriteFlagInput(MemWrite),
+    .MemToRegInput(MemToReg),
+    .BranchFlagInput(Branch),
+    .JumpFlagInput(Jump),
+    .ALUControlInput(ALUOp),
+    .IRInput(instrWireID),
+    .PCInput(nextPCID),
+    .ARegisterInput(readData1),
+    .BRegisterInput(readData2),
+    .regDestAddressInput(writeRegWire),
+    .BranchInput(outSignEXT),
+    .JumpInput(NPC1),
+    .regDestsFlagOutput(RegDestEX),
+    .regWriteFlagOutput(RegWriteEX),
+    .ALUSrcOutput(ALUSrcEX),
+    .MemReadFlagOutput(MemReadEX),
+    .MemWriteFlagOutput(MemWriteEX),
+    .MemToRegOutput(MemToRegEX),
+    .BranchFlagOutput(BranchEX),
+    .JumpFlagOutput(JumpEX),
+    .ALUControlOutput(ALUCtrlEX),
+    .IROutput(instrWireEX),
+    .PCOutput(nextPCEX),
+    .ARegisterOutput(readData1EX),
+    .BRegisterOutput(readData2EX),
+    .regDestAddressOutput(writeRegWireEX),
+    .BranchOutput(outSignEXTEX),
+    .JumpOutput(NPC1EX),
+    .controlSignal(1'b1)
+);
 
-progCounterRegWrite u9(NPCValue,dataStall,PC);/*MEM*/
+EX_MEM_register p3(
+    .clk(clk),
+    .reset(reset),
+    .regDestsFlagInput(RegDestEX),
+    .regWriteFlagInput(RegWriteEX),
+    .ALUSrcInput(ALUSrcEX),
+    .memReadFlagInput(MemReadEX),
+    .memWriteFlagInput(MemWriteEX),
+    .MemToRegInput(MemToRegEX),
+    .BranchsFlagInput(BranchEX),
+    .JumpsFlagInput(JumpEX),
+    .ALUControlInput(ALUCtrlEX),
+    .IRInput(instrWireEX),
+    .PCInput(nextPCEX),
+    .BInput(readData2EX),
+    .ResultInput(ALUResult),
+    .regDestAddressInput(writeRegWireEX),
+    .BranchAddressInput(nextPCBranch),
+    .JumpAddressInput(NPC1EX),
+    .ZeroFlagInput(ZeroOut),
+    .regDestsFlagOutput(RegDestMEM),
+    .regWriteFlagOutput(RegWriteMEM),
+    .ALUSrcOutput(ALUSrcMEM),
+    .memReadFlagOutput(MemReadMEM),
+    .memWriteFlagOutput(MemWriteMEM),
+    .MemToRegOutput(MemToRegMEM),
+    .BranchsFlagOutput(BranchMEM),
+    .JumpsFlagOutput(JumpMEM),
+    .ALUControlOutput(ALUCtrlMEM),
+    .IROutput(instrWireMEM),
+    .PCOutput(nextPCMEM),
+    .BOutput(readData2MEM),
+    .ResultOutput(ALUResultMEM),
+    .regDestAddressOutput(writeRegWireMEM),
+    .BranchAddressOutput(nextPCBranchMEM),
+    .JumpAddressOutput(NPC1MEM),
+    .ZeroFlagOutput(ZeroOutMEM),
+    .controlSignal(1'b1)
+);
 
-IF_ID_register p1(clk,instrWireHazard,nextPC,instrWireID,nextPCID,dataStall);
-
-ID_EX_register p2(clk,RegDest,RegWrite,ALUSrc,MemRead,MemWrite,MemToReg,Branch,Jump,ALUCtrl,
-instrWireID,nextPCID,readData1,readData2,writeRegWire,outSignEXT,NPC1,
-RegDestEX,RegWriteEX,ALUSrcEX,MemReadEX,MemWriteEX,MemToRegEX,BranchEX,JumpEX,ALUCtrlEX,
-instrWireEX,nextPCEX,readData1EX,readData2EX,writeRegWireEX,outSignEXTEX,NPC1EX,1'b1);
-
-EX_MEM_register p3(clk,RegDestEX,RegWriteEX,ALUSrcEX,MemReadEX,MemWriteEX,MemToRegEX,BranchEX,JumpEX,ALUCtrlEX,
-instrWireEX,nextPCEX,readData2EX,ALUResult,writeRegWireEX,nextPCBranch,NPC1EX,ZeroOut,
-RegDestMEM,RegWriteMEM,ALUSrcMEM,MemReadMEM,MemWriteMEM,MemToRegMEM,BranchMEM,JumpMEM,ALUCtrlMEM,
-instrWireMEM,nextPCMEM,readData2MEM,ALUResultMEM,writeRegWireMEM,nextPCBranchMEM,NPC1MEM,ZeroOutMEM,1'b1);
-
-MEM_WB_register p4(clk,RegDestMEM,RegWriteMEM,ALUSrcMEM,MemReadMEM,MemWriteMEM,MemToRegMEM,BranchMEM,JumpMEM,ALUCtrlMEM,
-instrWireMEM,outputData,ALUResultMEM,writeRegWireMEM,
-RegDestWB,RegWriteWB,ALUSrcWB,MemReadWB,MemWriteWB,MemToRegWB,BranchWB,JumpWB,ALUCtrlWB,
-instrWireWB,outputDataWB,ALUResultWB,writeRegWireWB,1'b1);
+MEM_WB_register p4(
+    .clk(clk),
+    .reset(reset),
+    .regDestsFlagInput(RegDestMEM),
+    .regWriteFlagInput(RegWriteMEM),
+    .ALUSrcInput(ALUSrcMEM),
+    .MemToRegInput(MemToRegMEM),
+    .BranchsFlagInput(BranchMEM),
+    .JumpsFlagInput(JumpMEM),
+    .ALUControlInput(ALUCtrlMEM),
+    .IRInput(instrWireMEM),
+    .BInput(outputData),
+    .ResultInput(ALUResultMEM),
+    .regDestAddressInput(writeRegWireMEM),
+    .regDestsFlagOutput(RegDestWB),
+    .regWriteFlagOutput(RegWriteWB),
+    .ALUSrcOutput(ALUSrcWB),
+    .MemToRegOutput(MemToRegWB),
+    .BranchsFlagOutput(BranchWB),
+    .JumpsFlagOutput(JumpWB),
+    .ALUControlOutput(ALUCtrlWB),
+    .IROutput(instrWireWB),
+    .BOutput(outputDataWB),
+    .ResultOutput(ALUResultWB),
+    .regDestAddressOutput(writeRegWireWB),
+    .controlSignal(1'b1)
+);
 
 endmodule
